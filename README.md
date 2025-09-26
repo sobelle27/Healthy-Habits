@@ -1,15 +1,19 @@
-# PointsPlus Tracker v4 (Expanded Measurements + Exercise Metadata)
+# PointsPlus Tracker v5 (Monthly Measurements + Exercise Minutes/Reps/Weight)
 
-**What’s new**
-- Measurements now include: L/R calves, L/R thighs, L/R forearms, L/R biceps, buttocks, hips, waist, bust, neck, plus weight.
-- Exercise log supports optional **reps** and **weight** (still credits **points** to your totals).
-- Mobile: measurements table scrolls horizontally; forms are touch-friendly.
-- Cache-busted file references (`?v4`) for GitHub Pages so devices load the newest files.
+**Measurements (Monthly)**
+- Track by **month** with all requested fields: Weight, Neck, Bust, Waist, Hips, Buttocks, L/R Biceps, L/R Forearms, L/R Thighs, L/R Calves.
+- Using the month picker keeps **one entry per month** (saving the form for the same month replaces that month's entry).
+- History table scrolls horizontally on mobile.
+
+**Exercise**
+- Optional **Minutes**, **Reps**, and **Weight** fields for logging detail.
+- You still enter **Points** manually; those feed the Daily/Weekly math. (No auto formula applied.)
 
 **Deploy**
-1) Upload these four files to your repo root and publish with GitHub Pages.  
-2) Hard refresh on each device (Cmd/Ctrl+Shift+R) or open in a Private tab the first time.
+- Upload these four files to your repo root and publish with GitHub Pages.
+- Cache-busted file references (`?v5`) so phones/tablets/computers fetch the latest.
+- First load after updating: do a hard refresh or use a Private tab.
 
-**Add to Home Screen (no extra files needed)**
-- **iPhone/iPad (Safari):** open your site → Share button → **Add to Home Screen**.  
-- **Android (Chrome):** open your site → ⋮ menu → **Add to Home screen**.
+**Add to Home Screen**
+- iPhone/iPad (Safari): Share → **Add to Home Screen**.
+- Android (Chrome): ⋮ menu → **Add to Home screen**.

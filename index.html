@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PointsPlus Tracker</title>
-  <link rel="stylesheet" href="style.css?v4" />
+  <link rel="stylesheet" href="style.css?v5" />
 </head>
 <body>
   <header>
@@ -61,13 +61,14 @@
         <h3>Log Exercise</h3>
         <form id="exerciseForm">
           <input type="text" id="exerciseName" placeholder="Activity" required />
+          <input type="number" id="exerciseMinutes" placeholder="Minutes" min="0" step="1" />
           <input type="number" id="exerciseReps" placeholder="Reps" min="0" step="1" />
           <input type="number" id="exerciseWeight" placeholder="Weight (lbs)" min="0" step="0.5" />
           <input type="number" id="exercisePoints" placeholder="Points earned" min="0" step="0.5" required />
           <button type="submit">Add</button>
         </form>
         <ul id="exerciseList"></ul>
-        <p class="hint">Reps/weight are optional metadata for free weights. Points still credit your daily first.</p>
+        <p class="hint">Reps/weight/minutes are optional for your own record. Points you enter still feed your Daily/Weekly math.</p>
       </div>
     </section>
 
@@ -99,9 +100,9 @@
     <!-- MEASUREMENTS -->
     <section id="measurements" class="tab" role="tabpanel" aria-hidden="true">
       <div class="panel">
-        <h3>Add Measurement</h3>
+        <h3>Add Monthly Measurement</h3>
         <form id="measureForm" class="measure-form">
-          <input type="date" id="measureDate" required/>
+          <input type="month" id="measureMonth" required/>
           <input type="number" id="mWeight" placeholder="Weight" step="0.1"/>
           <input type="number" id="mNeck" placeholder="Neck" step="0.1"/>
           <input type="number" id="mBust" placeholder="Bust" step="0.1"/>
@@ -125,7 +126,7 @@
           <table id="measureTable">
             <thead>
               <tr>
-                <th>Date</th><th>Weight</th><th>Neck</th><th>Bust</th><th>Waist</th><th>Hips</th><th>Buttocks</th>
+                <th>Month</th><th>Weight</th><th>Neck</th><th>Bust</th><th>Waist</th><th>Hips</th><th>Buttocks</th>
                 <th>Biceps L</th><th>Biceps R</th><th>Forearm L</th><th>Forearm R</th>
                 <th>Thigh L</th><th>Thigh R</th><th>Calf L</th><th>Calf R</th>
               </tr>
@@ -133,7 +134,7 @@
             <tbody></tbody>
           </table>
         </div>
-        <p class="hint">Tip: swipe the table left/right on mobile.</p>
+        <p class="hint">Swipe the table left/right on mobile.</p>
       </div>
     </section>
 
@@ -166,6 +167,6 @@
     <small>Local-only tool. Not affiliated with WW®. Data saves in your browser.</small>
   </footer>
 
-  <script src="script.js?v4"></script>
+  <script src="script.js?v5"></script>
 </body>
 </html>

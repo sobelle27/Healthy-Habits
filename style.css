@@ -33,9 +33,9 @@ main{padding:16px;max-width:1000px;margin:0 auto}
 .panel h3{margin-top:0}
 
 form{display:grid;grid-template-columns:1fr 120px 120px;gap:8px;align-items:center}
-#exerciseForm{grid-template-columns:1fr 100px 140px 140px 120px}
+#exerciseForm{grid-template-columns:1fr 100px 100px 140px 120px}
 .measure-form{grid-template-columns:repeat(3,1fr);gap:8px}
-form input[type="text"], form input[type="number"], form input[type="date"]{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px}
+form input[type="text"], form input[type="number"], form input[type="date"], form input[type="month"]{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px}
 form button{padding:12px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-weight:700;cursor:pointer}
 form label{display:flex;flex-direction:column;font-size:14px;color:var(--muted)}
 #settingsForm{grid-template-columns:1fr 1fr 120px}
@@ -54,13 +54,13 @@ form label{display:flex;flex-direction:column;font-size:14px;color:var(--muted)}
 
 /* Measurements table: horizontal scroll on small screens */
 .table-wrap{overflow:auto}
-#measureTable{width:max(900px,100%);border-collapse:collapse}
+#measureTable{width:max(1100px,100%);border-collapse:collapse}
 #measureTable th,#measureTable td{border-bottom:1px solid var(--line);text-align:left;padding:8px;white-space:nowrap}
 
 footer{padding:20px;text-align:center;color:var(--muted)}
 
 @media(max-width:900px){
-  #exerciseForm{grid-template-columns:1fr 80px 120px 120px 100px}
+  #exerciseForm{grid-template-columns:1fr 80px 80px 120px 100px}
 }
 @media(max-width:720px){
   form{grid-template-columns:1fr 1fr 100px}

@@ -13,9 +13,9 @@
     weeklyUsed: 0,
     rolloverBank: 0,
     foods: [],
-    exercises: [], // {name, points, reps?, weight?}
+    exercises: [], // {name, minutes?, reps?, weight?, points}
     recipes: [],
-    measurements: [] // entries with extended fields
+    measurements: [] // {month:'YYYY-MM', weight, neck, bust, waist, hips, buttocks, bicepsL, ...}
   };
 
   function load(){
@@ -86,11 +86,13 @@
 
     const el = $('#exerciseList'); el.innerHTML='';
     state.exercises.forEach((it, idx)=>{
-      const li = document.createElement('li');
       const meta = [];
+      if(it.minutes){ meta.push(`${it.minutes} min`); }
       if(it.reps){ meta.push(`${it.reps} reps`); }
       if(it.weight){ meta.push(`${it.weight} lb`); }
-      li.innerHTML = `<div><div>${it.name} <span class="ex-meta">${meta.join(' • ')}</span></div></div><strong>+${Number(it.points).toFixed(1).replace(/\.0$/,'')}</strong>`;
+      const metaStr = meta.length? ` <span class="ex-meta">(${meta.join(' • ')})</span>` : '';
+      const li = document.createElement('li');
+      li.innerHTML = `<div><div>${it.name}${metaStr}</div></div><strong>+${Number(it.points).toFixed(1).replace(/\.0$/,'')}</strong>`;
       const del = document.createElement('button'); del.textContent='✕';
       del.onclick = ()=>{ state.exercises.splice(idx,1); changed(); };
       li.appendChild(del);
@@ -156,15 +158,16 @@
     alert(`Rolled ${rollover} pts to your bank.`);
   });
 
-  // Exercise form (with reps/weight)
+  // Exercise form
   $('#exerciseForm').addEventListener('submit', (e)=>{
     e.preventDefault();
     const name = $('#exerciseName').value.trim();
+    const minutes = parseInt($('#exerciseMinutes').value || '0', 10) || null;
     const reps = parseInt($('#exerciseReps').value || '0', 10) || null;
     const weight = parseFloat($('#exerciseWeight').value || '0') || null;
     const pts = parseFloat($('#exercisePoints').value);
     if(!name || isNaN(pts)) return;
-    state.exercises.push({name, points:Number(pts), reps, weight});
+    state.exercises.push({name, minutes, reps, weight, points:Number(pts)});
     changed();
     $('#exerciseForm').reset(); $('#exerciseName').focus();
   });
@@ -194,11 +197,11 @@
     changed();
   });
 
-  // Measurements
+  // Measurements (monthly)
   $('#measureForm').addEventListener('submit', (e)=>{
     e.preventDefault();
     const entry = {
-      date: $('#measureDate').value,
+      month: $('#measureMonth').value, // YYYY-MM
       weight: $('#mWeight').value,
       neck: $('#mNeck').value,
       bust: $('#mBust').value,
@@ -214,17 +217,23 @@
       calfL: $('#mCalfL').value,
       calfR: $('#mCalfR').value
     };
-    state.measurements.push(entry);
+    // If an entry for this month exists, replace it (so you keep one per month)
+    const idx = state.measurements.findIndex(m => m.month === entry.month);
+    if(idx >= 0){ state.measurements[idx] = entry; } else { state.measurements.push(entry); }
     changed(); renderMeasurements();
     $('#measureForm').reset();
-    $('#measureDate').value = new Date().toISOString().slice(0,10);
+    // default month to current
+    const now = new Date();
+    $('#measureMonth').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
   });
 
   function renderMeasurements(){
     const tb = $('#measureTable tbody'); tb.innerHTML='';
-    state.measurements.slice().reverse().forEach(m=>{
+    // sort by month descending
+    const items = state.measurements.slice().sort((a,b)=> (a.month<b.month?1:-1));
+    items.forEach(m=>{
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${m.date||''}</td>
+      tr.innerHTML = `<td>${m.month||''}</td>
         <td>${m.weight||''}</td><td>${m.neck||''}</td><td>${m.bust||''}</td>
         <td>${m.waist||''}</td><td>${m.hips||''}</td><td>${m.buttocks||''}</td>
         <td>${m.bicepsL||''}</td><td>${m.bicepsR||''}</td>
@@ -280,7 +289,8 @@
   function initInputs(){
     $('#setDaily').value = state.dailyAllowance;
     $('#setWeekly').value = state.weeklyAllowance;
-    $('#measureDate').value = new Date().toISOString().slice(0,10);
+    const now = new Date();
+    $('#measureMonth').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
   }
 
   function start(){

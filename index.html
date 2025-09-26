@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang='en'><head>
+<meta charset='utf-8'/><meta name='viewport' content='width=device-width, initial-scale=1'/>
+<meta name="color-scheme" content="light">
+<title>PointsPlus Tracker — Classic Lite</title>
+<style>
+:root{ --bg:#f5f7fb; --card:#ffffff; --muted:#64748b; --text:#0f172a; --accent:#2563eb; --border:#e2e8f0; }
+*{box-sizing:border-box} html,body{margin:0;background:var(--bg)!important;color:var(--text)!important;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+.container{max-width:980px;margin:0 auto;padding:16px}
+header{position:sticky;top:0;z-index:10;background:var(--bg);padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center}
+header h1{font-size:18px;margin:0;font-weight:700}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin:12px 0;box-shadow:0 2px 10px rgba(2,6,23,.06)}
+.card h2{margin:0 0 8px 0;font-size:18px} .card h3{margin:8px 0 4px 0;font-size:16px;color:var(--accent)}
+.row{display:flex;gap:8px;flex-wrap:wrap} .col{flex:1;min-width:140px}
+input,select,button,textarea{width:100%;padding:12px;border-radius:12px;border:1px solid var(--border);background:#f8fafc;color:var(--text);font-size:16px}
+button.primary{background:var(--accent);color:#fff;font-weight:700;border:none} button.ghost{background:#fff;border:1px solid var(--border)}
+label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px} .small{font-size:12px;color:var(--muted)}
+.stat{font-size:28px;font-weight:800;color:var(--accent)} .badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#e2e8f0;font-size:12px}
+.tabs{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);display:flex}
+.tabs button{flex:1;padding:12px 6px;border:0;background:transparent;color:var(--muted);font-size:12px}
+.tabs button.active{color:var(--accent);font-weight:700} .spacer{height:72px} .hr{height:1px;background:var(--border);margin:12px 0}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px} .hidden{display:none}
+table{width:100%;border-collapse:collapse;font-size:14px} td,th{border-bottom:1px solid var(--border);padding:8px;text-align:left} th{color:var(--muted);font-weight:600}
+</style>
+</head>
+<body>
+<header><h1>PointsPlus — Classic Lite</h1></header>
+<div class='container'>
+
+<section id='tab-today' class='tab'>
+  <div class='card'>
+    <h2>Today</h2>
+    <div class='row'>
+      <div class='col'><label>Date</label><input type='date' id='today-date'/></div>
+      <div class='col'><label>Daily Target (auto if blank)</label><input type='number' id='daily-target'/></div>
+    </div>
+    <div class='hr'></div>
+    <h3>Meals</h3><div id='meals'></div>
+    <div class='hr'></div>
+    <div class='row'>
+      <div class='col'><div class='stat' id='today-total'>0</div><div class='small'>food pts used</div></div>
+      <div class='col'><div class='badge' id='today-remaining'>Remaining: —</div></div>
+    </div>
+    <div class='row'><div class='col'><button id='add-snack' class='ghost'>+ Add Snack</button></div><div class='col'><button id='quick-add' class='ghost'>+ Quick Add Points</button></div></div>
+  </div>
+
+  <div class='card'>
+    <h2>Calculator (PointsPlus approx)</h2>
+    <div class='grid'>
+      <div><label>Calories</label><input id='cals' type='number' step='1'></div>
+      <div><label>Total Fat (g)</label><input id='fat' type='number' step='0.1'></div>
+      <div><label>Fiber (g)</label><input id='fiber' type='number' step='0.1'></div>
+      <div><label>Servings</label><input id='servings' type='number' step='0.1' value='1'></div>
+    </div>
+    <div class='row'><div class='col'><button id='btn-calc' class='primary'>Calculate</button></div><div class='col'><div class='stat' id='calc-result'>0</div><div class='small'>pts / serving</div></div></div>
+  </div>
+</section>
+
+<section id='tab-recipes' class='tab hidden'>
+  <div class='card'>
+    <h2>Recipes</h2>
+    <div class='row'><div class='col'><label>Recipe Name</label><input id='r-name'></div><div class='col'><label>Servings</label><input id='r-servings' type='number' value='1'></div></div>
+    <table id='r-ings'><thead><tr><th>Ingredient</th><th>Calories</th><th>Fat</th><th>Fiber</th><th></th></tr></thead><tbody></tbody></table>
+    <div class='row'><div class='col'><button id='add-ing' class='ghost'>+ Add Ingredient</button></div><div class='col'><button id='save-recipe' class='primary'>Save Recipe</button></div></div>
+    <div class='row'><div class='col'><div class='stat' id='r-total'>0</div><div class='small'>pts total</div></div><div class='col'><div class='stat' id='r-per'>0</div><div class='small'>pts / serving</div></div></div>
+  </div>
+  <div class='card'><h3>Saved Recipes</h3><table id='recipes-table'><thead><tr><th>Name</th><th>Servings</th><th>Pts/serv</th><th></th></tr></thead><tbody></tbody></table></div>
+</section>
+
+<section id='tab-weight' class='tab hidden'>
+  <div class='card'><h2>Weekly Weight</h2><div class='grid'><div><label>Date</label><input id='wt-date' type='date'></div><div><label>Weight</label><input id='wt-value' type='number' step='0.1'></div></div><div class='row'><div class='col'><button id='wt-save' class='primary'>Save Weigh-in</button></div></div></div>
+  <div class='card'><table id='wt-table'><thead><tr><th>Date</th><th>Weight</th><th>Δ</th><th></th></tr></thead><tbody></tbody></table></div>
+</section>
+
+<section id='tab-measure' class='tab hidden'>
+  <div class='card'><h2>Weekly Measurements</h2>
+    <div class='grid'>
+      <div><label>Date</label><input id='m-date' type='date'></div>
+      <div><label>Waist</label><input id='m-waist' type='number' step='0.1'></div>
+      <div><label>Hips</label><input id='m-hips' type='number' step='0.1'></div>
+      <div><label>Bust/Chest</label><input id='m-bust' type='number' step='0.1'></div>
+    </div>
+    <div class='row'><div class='col'><button id='m-save' class='primary'>Save Measurements</button></div></div>
+  </div>
+  <div class='card'><table id='m-table'><thead><tr><th>Date</th><th>Waist</th><th>Hips</th><th>Bust</th><th></th></tr></thead><tbody></tbody></table></div>
+</section>
+
+<section id='tab-settings' class='tab hidden'>
+  <div class='card'><h2>Settings (Start / Goals)</h2>
+    <div class='grid'>
+      <div><label>Gender</label><select id='prof-gender'><option value='female'>Female</option><option value='male'>Male</option><option value='other'>Other</option></select></div>
+      <div><label>Age</label><input id='prof-age' type='number'></div>
+      <div><label>Height (ft)</label><input id='prof-h-ft' type='number'></div>
+      <div><label>Height (in)</label><input id='prof-h-in' type='number'></div>
+      <div><label>Current Weight (lb)</label><input id='prof-weight' type='number'></div>
+      <div><label>Goal Weight (lb)</label><input id='prof-goal' type='number'></div>
+      <div><label>Activity Level</label><select id='prof-activity'><option value='sedentary'>Sedentary</option><option value='sit'>Mostly sitting</option><option value='stand'>Mostly standing</option><option value='demanding'>Physically demanding</option></select></div>
+    </div>
+    <div class='row'><div class='col'><button id='save-profile' class='primary'>Save Start/Goals</button></div><div class='col'><div class='badge' id='allow-badge'>Allowance: —</div></div></div>
+  </div>
+</section>
+
+</div>
+<div class='spacer'></div>
+<nav class='tabs'>
+  <button class='active' data-tab='today'>Today</button>
+  <button data-tab='recipes'>Recipes</button>
+  <button data-tab='weight'>Weight</button>
+  <button data-tab='measure'>Measurements</button>
+  <button data-tab='settings'>Settings</button>
+</nav>
+
+<script>
+// ------- Minimal, robust tabs -------
+(function(){
+  const btns=document.querySelectorAll('.tabs button');
+  function show(n){
+    document.querySelectorAll('.tab').forEach(s=>s.classList.add('hidden'));
+    document.getElementById('tab-'+n).classList.remove('hidden');
+    btns.forEach(b=>b.classList.toggle('active', b.dataset.tab===n));
+  }
+  btns.forEach(b=>b.addEventListener('click', ()=>show(b.dataset.tab)));
+  show('today');
+})();
+
+// ------- Local storage helpers -------
+function jget(k){ try{return JSON.parse(localStorage.getItem(k)||'null');}catch(e){return null;} }
+function jset(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
+
+// ------- PointsPlus daily allowance (approx like early build) -------
+function inchesFrom(ft,inch){ return (parseFloat(ft||0)||0)*12 + (parseFloat(inch||0)||0); }
+function ppAgePoints(a){ a=parseFloat(a||0)||0; if(a<=26) return 4; if(a<=37) return 3; if(a<=47) return 2; return 1; }
+function ppGenderPoints(g){ if(g==='male') return 8; if(g==='female') return 2; return 6; }
+function ppHeightPoints(ins){ if(ins<61) return 0; if(ins<=70) return 1; return 2; }
+function ppActivityPointsBase(l){ if(l==='sedentary') return 0; if(l==='sit') return 2; if(l==='stand') return 4; if(l==='demanding') return 6; return 0; }
+function ppWeightPoints(lb){ lb=parseFloat(lb||0)||0; return Math.floor(lb/10); }
+function calcAllowance(p){ return ppGenderPoints(p.gender||'female')+ppAgePoints(p.age)+ppHeightPoints(inchesFrom(p.h_ft,p.h_in))+ppWeightPoints(p.weight)+ppActivityPointsBase(p.activity||'sedentary'); }
+
+// ------- Food Points (PointsPlus approx): round(max(0, cal/50 + fat/12 - fiber/5)) -------
+function pointsPlusFood(cal,fat,fiber){ const val = (cal/50) + (fat/12) - (fiber/5); return Math.max(0, Math.round(val)); }
+
+// ------- Today (meals) -------
+const mealsDiv=document.getElementById('meals'); const todayDate=document.getElementById('today-date'); const targetInput=document.getElementById('daily-target'); const todayTotal=document.getElementById('today-total'); const todayRemaining=document.getElementById('today-remaining');
+function mealRow(meal,item={}){const wrap=document.createElement('div'); wrap.className='row'; wrap.innerHTML=`<div class="col"><label>${meal} - Food</label><input data-k="name" value="${item.name||''}"></div><div class="col"><label>Points</label><input data-k="points" type="number" step="1" value="${item.points||0}"></div><div class="col"><label></label><button class="ghost remove-item">Remove</button></div>`; wrap.querySelector('.remove-item').addEventListener('click',()=>{wrap.remove();updateTodayTotals();saveToday();}); return wrap;}
+function renderMeals(day){mealsDiv.innerHTML=''; const mealNames=['Breakfast','Lunch','Dinner','Snack']; const by={}; mealNames.forEach(m=>by[m]=[]); (day.items||[]).forEach(it=>{by[it.meal]=by[it.meal]||[]; by[it.meal].push(it);}); mealNames.forEach(m=>{const card=document.createElement('div'); card.className='card'; card.innerHTML=`<h3>${m}</h3><div class="meal-items"></div><button class="ghost add-item">+ Add ${m} Item</button>`; const holder=card.querySelector('.meal-items'); (by[m]||[]).forEach(it=>holder.appendChild(mealRow(m,it))); card.querySelector('.add-item').addEventListener('click',()=>holder.appendChild(mealRow(m,{name:'',points:0}))); mealsDiv.appendChild(card); }); }
+function readMealsUI(){const items=[]; document.querySelectorAll('#meals .card').forEach(card=>{const meal=card.querySelector('h3').textContent; card.querySelectorAll('.row').forEach(r=>{const name=r.querySelector('input[data-k="name"]').value.trim(); const pts=parseFloat(r.querySelector('input[data-k="points"]').value||'0'); if(name||pts) items.push({meal,name,points:pts});});}); return items;}
+function updateTodayTotals(){ const items=readMealsUI(); const total=items.reduce((s,x)=>s+(+x.points||0),0); todayTotal.textContent=String(total); const p=jget('profile')||{}; let target = +(targetInput.value||0); if(!target){ target = calcAllowance(p); targetInput.value = target; } todayRemaining.textContent = 'Remaining: ' + (target - total); }
+function saveToday(){ const date=todayDate.value; if(!date) return; const day={date,target:+(targetInput.value||0),items:readMealsUI()}; jset('day:'+date, day); }
+function loadToday(){ const date=todayDate.value; const day = jget('day:'+date) || {date,target:0,items:[]}; targetInput.value = day.target||''; renderMeals(day); updateTodayTotals(); }
+document.getElementById('add-snack').addEventListener('click',()=>{document.querySelectorAll('#meals .card').forEach(c=>{if(c.querySelector('h3').textContent==='Snack'){c.querySelector('.meal-items').appendChild(mealRow('Snack',{name:'',points:0}));}});});
+document.getElementById('quick-add').addEventListener('click',()=>{const cal=+(prompt('Calories?','0')||0); const fat=+(prompt('Fat (g)?','0')||0); const fib=+(prompt('Fiber (g)?','0')||0); const pts=pointsPlusFood(cal,fat,fib); document.querySelectorAll('#meals .card').forEach(c=>{if(c.querySelector('h3').textContent==='Snack'){c.querySelector('.meal-items').appendChild(mealRow('Snack',{name:'Quick Add',points:pts}));}}); updateTodayTotals();});
+todayDate.addEventListener('change', loadToday);
+mealsDiv.addEventListener('input',(e)=>{if(e.target.tagName==='INPUT'){updateTodayTotals();saveToday();}});
+targetInput.addEventListener('input',()=>{updateTodayTotals();saveToday();});
+
+// Calculator
+document.getElementById('btn-calc').addEventListener('click',()=>{ const cal=+(document.getElementById('cals').value||0); const fat=+(document.getElementById('fat').value||0); const fib=+(document.getElementById('fiber').value||0); const serv=+(document.getElementById('servings').value||1); const pts=pointsPlusFood(cal,fat,fib); document.getElementById('calc-result').textContent = String(Math.round(pts/Math.max(1,serv))); });
+
+// Recipes
+function addIngRow(tb,ing={name:'',cals:0,fat:0,fiber:0}){const tr=document.createElement('tr'); tr.innerHTML=`<td><input data-k="name" value="${ing.name}"/></td><td><input data-k="cals" type="number" step="1" value="${ing.cals}"/></td><td><input data-k="fat" type="number" step="0.1" value="${ing.fat}"/></td><td><input data-k="fiber" type="number" step="0.1" value="${ing.fiber}"/></td><td><button class="ghost del">X</button></td>`; tr.querySelector('.del').addEventListener('click',()=>tr.remove()); tb.appendChild(tr);}
+document.getElementById('add-ing').addEventListener('click',()=>addIngRow(document.querySelector('#r-ings tbody')));
+document.getElementById('r-ings').addEventListener('input',recomputeRecipe);
+document.getElementById('r-servings').addEventListener('input',recomputeRecipe);
+function recomputeRecipe(){const tb=document.querySelector('#r-ings tbody'); let t={cals:0,fat:0,fiber:0}; tb.querySelectorAll('tr').forEach(tr=>{const v=k=>parseFloat(tr.querySelector(`input[data-k="${k}"]`).value||'0'); t.cals+=v('cals');t.fat+=v('fat');t.fiber+=v('fiber');}); const pts=pointsPlusFood(t.cals,t.fat,t.fiber); document.getElementById('r-total').textContent=String(pts); const serv=+(document.getElementById('r-servings').value||1); document.getElementById('r-per').textContent=String(Math.round(pts/Math.max(1,serv)));}
+document.getElementById('save-recipe').addEventListener('click',()=>{const name=document.getElementById('r-name').value.trim(); if(!name){alert('Name your recipe');return;} const serv=+(document.getElementById('r-servings').value||1); const tb=document.querySelector('#r-ings tbody'); const ings=[]; tb.querySelectorAll('tr').forEach(tr=>{const v=k=>tr.querySelector(`input[data-k="${k}"]`).value; ings.push({name:v('name'),cals:+(v('cals')||0),fat:+(v('fat')||0),fiber:+(v('fiber')||0)});}); const id=Date.now().toString(); const rec={id,name,serv,ings}; const list=jget('recipes')||[]; list.push(rec); jset('recipes',list); loadRecipes(); alert('Recipe saved.');});
+function loadRecipes(){const tbody=document.querySelector('#recipes-table tbody'); const rows=jget('recipes')||[]; tbody.innerHTML=''; rows.forEach(r=>{ const tot=r.ings.reduce((t,x)=>({cals:t.cals+x.cals,fat:t.fat+x.fat,fiber:t.fiber+x.fiber}),{cals:0,fat:0,fiber:0}); const pts=pointsPlusFood(tot.cals,tot.fat,tot.fiber); const per=Math.round(pts/Math.max(1,r.serv)); const tr=document.createElement('tr'); tr.innerHTML=`<td>${r.name}</td><td>${r.serv}</td><td>${per}</td><td><button data-id="${r.id}" class="ghost del-rec">Delete</button></td>`; tbody.appendChild(tr); }); tbody.querySelectorAll('.del-rec').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.id; const rows=(jget('recipes')||[]).filter(r=>r.id!==id); jset('recipes',rows); loadRecipes();}));}
+
+// Weight
+document.getElementById('wt-save').addEventListener('click', ()=>{const d=document.getElementById('wt-date').value; const v=+(document.getElementById('wt-value').value||0); if(!d) return; const rows=jget('weights')||[]; const idx=rows.findIndex(x=>x.date===d); if(idx>=0) rows[idx]={date:d,value:v}; else rows.push({date:d,value:v}); rows.sort((a,b)=>(a.date||'').localeCompare(b.date||'')); jset('weights',rows); loadWeights();});
+function loadWeights(){const rows=jget('weights')||[]; const tb=document.querySelector('#wt-table tbody'); tb.innerHTML=''; let prev=null; rows.forEach(r=>{const delta=(prev!=null)?(r.value-prev).toFixed(1):'—'; const tr=document.createElement('tr'); tr.innerHTML=`<td>${r.date}</td><td>${r.value}</td><td>${delta}</td><td><button class="ghost" data-del="${r.date}">Delete</button></td>`; tb.appendChild(tr); prev=r.value;}); tb.querySelectorAll('button[data-del]').forEach(b=>b.addEventListener('click',()=>{const date=b.dataset.del; const rows=(jget('weights')||[]).filter(x=>x.date!==date); jset('weights',rows); loadWeights();}));}
+
+// Measurements
+document.getElementById('m-save').addEventListener('click', ()=>{ const d=document.getElementById('m-date').value; if(!d) return; const obj={date:d, waist:+(document.getElementById('m-waist').value||0), hips:+(document.getElementById('m-hips').value||0), bust:+(document.getElementById('m-bust').value||0)}; const rows=jget('measures')||[]; const idx=rows.findIndex(x=>x.date===d); if(idx>=0) rows[idx]=obj; else rows.push(obj); rows.sort((a,b)=>(a.date||'').localeCompare(b.date||'')); jset('measures',rows); loadMeasures(); });
+function loadMeasures(){const rows=jget('measures')||[]; const tb=document.querySelector('#m-table tbody'); tb.innerHTML=''; rows.forEach(r=>{const tr=document.createElement('tr'); tr.innerHTML = `<td>${r.date}</td><td>${r.waist||0}</td><td>${r.hips||0}</td><td>${r.bust||0}</td><td><button class='ghost' data-del='${r.date}'>Delete</button></td>`; tb.appendChild(tr);}); tb.querySelectorAll('button[data-del]').forEach(b=>b.addEventListener('click',()=>{const date=b.dataset.del; const rows=(jget('measures')||[]).filter(x=>x.date!==date); jset('measures',rows); loadMeasures();}));}
+
+// Settings
+function saveProfile(){ const p={gender:document.getElementById('prof-gender').value, age:+document.getElementById('prof-age').value||0, h_ft:+document.getElementById('prof-h-ft').value||0, h_in:+document.getElementById('prof-h-in').value||0, weight:+document.getElementById('prof-weight').value||0, goal:+document.getElementById('prof-goal').value||0, activity:document.getElementById('prof-activity').value}; jset('profile',p); document.getElementById('allow-badge').textContent='Allowance: '+calcAllowance(p); updateTodayTotals(); }
+document.getElementById('save-profile').addEventListener('click', saveProfile);
+function loadProfile(){ const p=jget('profile')||{}; const set=(id,v)=>{const el=document.getElementById(id); if(el) el.value=(v??'');}; set('prof-gender',p.gender); set('prof-age',p.age); set('prof-h-ft',p.h_ft); set('prof-h-in',p.h_in); set('prof-weight',p.weight); set('prof-goal',p.goal); set('prof-activity',p.activity); document.getElementById('allow-badge').textContent='Allowance: '+calcAllowance(p); return p; }
+
+// Init
+(function(){
+  const today=new Date().toISOString().slice(0,10);
+  ['today-date','wt-date','m-date'].forEach(id=>{const el=document.getElementById(id); if(el) el.value=today;});
+  loadProfile(); loadToday(); loadRecipes(); loadWeights(); loadMeasures();
+})();
+</script>
+</body>
+</html>

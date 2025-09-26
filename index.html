@@ -3,10 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="mobile-web-app-capable" content="yes">
   <title>PointsPlus Tracker</title>
-  <link rel="stylesheet" href="style.css?v3" />
+  <link rel="stylesheet" href="style.css?v4" />
 </head>
 <body>
   <header>
@@ -14,7 +12,7 @@
     <div id="dateDisplay"></div>
   </header>
 
-  <nav class="tabs" role="tablist" aria-label="Sections">
+  <nav class="tabs" role="tablist">
     <button class="tab-btn active" data-tab="today" role="tab" aria-selected="true">Today</button>
     <button class="tab-btn" data-tab="exercise" role="tab" aria-selected="false">Exercise</button>
     <button class="tab-btn" data-tab="recipes" role="tab" aria-selected="false">Recipes</button>
@@ -23,6 +21,7 @@
   </nav>
 
   <main>
+    <!-- TODAY -->
     <section id="today" class="tab active" role="tabpanel">
       <div class="cards">
         <div class="card">
@@ -56,19 +55,23 @@
       </div>
     </section>
 
+    <!-- EXERCISE -->
     <section id="exercise" class="tab" role="tabpanel" aria-hidden="true">
       <div class="panel">
         <h3>Log Exercise</h3>
         <form id="exerciseForm">
           <input type="text" id="exerciseName" placeholder="Activity" required />
+          <input type="number" id="exerciseReps" placeholder="Reps" min="0" step="1" />
+          <input type="number" id="exerciseWeight" placeholder="Weight (lbs)" min="0" step="0.5" />
           <input type="number" id="exercisePoints" placeholder="Points earned" min="0" step="0.5" required />
           <button type="submit">Add</button>
         </form>
         <ul id="exerciseList"></ul>
-        <p class="hint">Exercise points add back to your daily remaining first, then weekly.</p>
+        <p class="hint">Reps/weight are optional metadata for free weights. Points still credit your daily first.</p>
       </div>
     </section>
 
+    <!-- RECIPES -->
     <section id="recipes" class="tab" role="tabpanel" aria-hidden="true">
       <div class="panel">
         <h3>New Recipe</h3>
@@ -93,27 +96,48 @@
       </div>
     </section>
 
+    <!-- MEASUREMENTS -->
     <section id="measurements" class="tab" role="tabpanel" aria-hidden="true">
       <div class="panel">
         <h3>Add Measurement</h3>
-        <form id="measureForm">
+        <form id="measureForm" class="measure-form">
           <input type="date" id="measureDate" required/>
-          <input type="number" id="measureWeight" placeholder="Weight" step="0.1"/>
-          <input type="number" id="measureWaist" placeholder="Waist" step="0.1"/>
-          <input type="number" id="measureHips" placeholder="Hips" step="0.1"/>
-          <input type="number" id="measureChest" placeholder="Chest" step="0.1"/>
+          <input type="number" id="mWeight" placeholder="Weight" step="0.1"/>
+          <input type="number" id="mNeck" placeholder="Neck" step="0.1"/>
+          <input type="number" id="mBust" placeholder="Bust" step="0.1"/>
+          <input type="number" id="mWaist" placeholder="Waist" step="0.1"/>
+          <input type="number" id="mHips" placeholder="Hips" step="0.1"/>
+          <input type="number" id="mButtocks" placeholder="Buttocks" step="0.1"/>
+          <input type="number" id="mBicepsL" placeholder="Biceps L" step="0.1"/>
+          <input type="number" id="mBicepsR" placeholder="Biceps R" step="0.1"/>
+          <input type="number" id="mForearmL" placeholder="Forearm L" step="0.1"/>
+          <input type="number" id="mForearmR" placeholder="Forearm R" step="0.1"/>
+          <input type="number" id="mThighL" placeholder="Thigh L" step="0.1"/>
+          <input type="number" id="mThighR" placeholder="Thigh R" step="0.1"/>
+          <input type="number" id="mCalfL" placeholder="Calf L" step="0.1"/>
+          <input type="number" id="mCalfR" placeholder="Calf R" step="0.1"/>
           <button type="submit">Save</button>
         </form>
       </div>
       <div class="panel">
         <h3>History</h3>
-        <table id="measureTable">
-          <thead><tr><th>Date</th><th>Weight</th><th>Waist</th><th>Hips</th><th>Chest</th></tr></thead>
-          <tbody></tbody>
-        </table>
+        <div class="table-wrap">
+          <table id="measureTable">
+            <thead>
+              <tr>
+                <th>Date</th><th>Weight</th><th>Neck</th><th>Bust</th><th>Waist</th><th>Hips</th><th>Buttocks</th>
+                <th>Biceps L</th><th>Biceps R</th><th>Forearm L</th><th>Forearm R</th>
+                <th>Thigh L</th><th>Thigh R</th><th>Calf L</th><th>Calf R</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="hint">Tip: swipe the table left/right on mobile.</p>
       </div>
     </section>
 
+    <!-- SETTINGS -->
     <section id="settings" class="tab" role="tabpanel" aria-hidden="true">
       <div class="panel">
         <h3>Allowances</h3>
@@ -142,6 +166,6 @@
     <small>Local-only tool. Not affiliated with WW®. Data saves in your browser.</small>
   </footer>
 
-  <script src="script.js?v3"></script>
+  <script src="script.js?v4"></script>
 </body>
 </html>

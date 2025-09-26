@@ -2,7 +2,6 @@
   const $ = (s, p=document) => p.querySelector(s);
   const $$ = (s, p=document) => [...p.querySelectorAll(s)];
 
-  // Basic touch feedback for mobile (optional)
   document.addEventListener('touchstart', ()=>{}, {passive:true});
 
   const todayKey = 'pptracker-state';
@@ -14,9 +13,9 @@
     weeklyUsed: 0,
     rolloverBank: 0,
     foods: [],
-    exercises: [],
+    exercises: [], // {name, points, reps?, weight?}
     recipes: [],
-    measurements: []
+    measurements: [] // entries with extended fields
   };
 
   function load(){
@@ -88,7 +87,10 @@
     const el = $('#exerciseList'); el.innerHTML='';
     state.exercises.forEach((it, idx)=>{
       const li = document.createElement('li');
-      li.innerHTML = `<span>${it.name}</span><strong>+${Number(it.points).toFixed(1).replace(/\.0$/,'')}</strong>`;
+      const meta = [];
+      if(it.reps){ meta.push(`${it.reps} reps`); }
+      if(it.weight){ meta.push(`${it.weight} lb`); }
+      li.innerHTML = `<div><div>${it.name} <span class="ex-meta">${meta.join(' • ')}</span></div></div><strong>+${Number(it.points).toFixed(1).replace(/\.0$/,'')}</strong>`;
       const del = document.createElement('button'); del.textContent='✕';
       del.onclick = ()=>{ state.exercises.splice(idx,1); changed(); };
       li.appendChild(del);
@@ -115,20 +117,18 @@
 
   function addFood(name, points){ state.foods.push({name, points:Number(points)}); changed(); }
 
-  // Tabs (click + keyboard support)
+  // Tabs
   function activateTab(btn){
     $$('.tab-btn').forEach(b=>{ b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
     $$('.tab').forEach(t=>{ t.classList.remove('active'); t.setAttribute('aria-hidden','true'); });
     btn.classList.add('active'); btn.setAttribute('aria-selected','true');
-    const target = '#'+btn.dataset.tab;
-    const pane = $(target);
+    const pane = $('#'+btn.dataset.tab);
     if(pane){ pane.classList.add('active'); pane.setAttribute('aria-hidden','false'); }
   }
-
   $$('.tab-btn').forEach(btn=>{
     btn.addEventListener('click', ()=>activateTab(btn));
     btn.addEventListener('keydown', (e)=>{
-      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); activateTab(btn); }
+      if(e.key==='Enter' || e.key===' '){ e.preventDefault(); activateTab(btn); }
     });
   });
 
@@ -156,13 +156,15 @@
     alert(`Rolled ${rollover} pts to your bank.`);
   });
 
-  // Exercise form
+  // Exercise form (with reps/weight)
   $('#exerciseForm').addEventListener('submit', (e)=>{
     e.preventDefault();
     const name = $('#exerciseName').value.trim();
+    const reps = parseInt($('#exerciseReps').value || '0', 10) || null;
+    const weight = parseFloat($('#exerciseWeight').value || '0') || null;
     const pts = parseFloat($('#exercisePoints').value);
     if(!name || isNaN(pts)) return;
-    state.exercises.push({name, points:Number(pts)});
+    state.exercises.push({name, points:Number(pts), reps, weight});
     changed();
     $('#exerciseForm').reset(); $('#exerciseName').focus();
   });
@@ -197,21 +199,38 @@
     e.preventDefault();
     const entry = {
       date: $('#measureDate').value,
-      weight: $('#measureWeight').value,
-      waist: $('#measureWaist').value,
-      hips: $('#measureHips').value,
-      chest: $('#measureChest').value
+      weight: $('#mWeight').value,
+      neck: $('#mNeck').value,
+      bust: $('#mBust').value,
+      waist: $('#mWaist').value,
+      hips: $('#mHips').value,
+      buttocks: $('#mButtocks').value,
+      bicepsL: $('#mBicepsL').value,
+      bicepsR: $('#mBicepsR').value,
+      forearmL: $('#mForearmL').value,
+      forearmR: $('#mForearmR').value,
+      thighL: $('#mThighL').value,
+      thighR: $('#mThighR').value,
+      calfL: $('#mCalfL').value,
+      calfR: $('#mCalfR').value
     };
     state.measurements.push(entry);
     changed(); renderMeasurements();
     $('#measureForm').reset();
+    $('#measureDate').value = new Date().toISOString().slice(0,10);
   });
 
   function renderMeasurements(){
     const tb = $('#measureTable tbody'); tb.innerHTML='';
     state.measurements.slice().reverse().forEach(m=>{
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${m.date||''}</td><td>${m.weight||''}</td><td>${m.waist||''}</td><td>${m.hips||''}</td><td>${m.chest||''}</td>`;
+      tr.innerHTML = `<td>${m.date||''}</td>
+        <td>${m.weight||''}</td><td>${m.neck||''}</td><td>${m.bust||''}</td>
+        <td>${m.waist||''}</td><td>${m.hips||''}</td><td>${m.buttocks||''}</td>
+        <td>${m.bicepsL||''}</td><td>${m.bicepsR||''}</td>
+        <td>${m.forearmL||''}</td><td>${m.forearmR||''}</td>
+        <td>${m.thighL||''}</td><td>${m.thighR||''}</td>
+        <td>${m.calfL||''}</td><td>${m.calfR||''}</td>`;
       tb.appendChild(tr);
     });
   }

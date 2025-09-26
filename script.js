@@ -1,13 +1,15 @@
-// Simple PointsPlus tracker with localStorage persistence
 (function(){
   const $ = (s, p=document) => p.querySelector(s);
   const $$ = (s, p=document) => [...p.querySelectorAll(s)];
 
+  // Basic touch feedback for mobile (optional)
+  document.addEventListener('touchstart', ()=>{}, {passive:true});
+
   const todayKey = 'pptracker-state';
   const initialState = {
     date: new Date().toISOString().slice(0,10),
-    dailyAllowance: 26,   // default typical PointsPlus daily
-    weeklyAllowance: 49,  // classic PointsPlus weekly
+    dailyAllowance: 26,
+    weeklyAllowance: 49,
     dailyUsed: 0,
     weeklyUsed: 0,
     rolloverBank: 0,
@@ -20,25 +22,21 @@
   function load(){
     const raw = localStorage.getItem(todayKey);
     let st = raw ? JSON.parse(raw) : initialState;
-    // handle new day auto rollover if date changed
     const currentDate = new Date().toISOString().slice(0,10);
     if (st.date !== currentDate){
-      // perform rollover of up to 4 unused daily points
       const remainingDaily = Math.max(0, st.dailyAllowance - st.dailyUsed);
       const rollover = Math.min(4, remainingDaily);
       st.rolloverBank += rollover;
       st.date = currentDate;
       st.dailyUsed = 0;
       st.foods = [];
-      st.exercises = []; // optional: clear exercise log daily
+      st.exercises = [];
     }
     return st;
   }
   let state = load();
 
-  function save(){
-    localStorage.setItem(todayKey, JSON.stringify(state));
-  }
+  function save(){ localStorage.setItem(todayKey, JSON.stringify(state)); }
 
   function updateHeaderDate(){
     const d = new Date(state.date);
@@ -46,13 +44,10 @@
   }
 
   function calc(){
-    // Exercise points add back to daily first, then weekly
     const exercisePts = state.exercises.reduce((a,b)=>a+Number(b.points||0),0);
     const foodPts = state.foods.reduce((a,b)=>a+Number(b.points||0),0);
-    // Used numbers are tracked; but keep in sync:
     state.dailyUsed = Math.min(foodPts, state.dailyAllowance + exercisePts);
     const dailyOverflow = Math.max(0, foodPts - (state.dailyAllowance + exercisePts));
-    // weeklyUsed includes overflow beyond daily; draws from rollover first implicitly by being in the same weeklyRemaining calculation
     state.weeklyUsed = dailyOverflow;
   }
 
@@ -74,15 +69,13 @@
     $('#rolloverBank').textContent = state.rolloverBank.toFixed(1).replace(/\.0$/,'');
   }
 
-  function exerciseToday(){
-    return state.exercises.reduce((a,b)=>a+Number(b.points||0),0);
-  }
+  function exerciseToday(){ return state.exercises.reduce((a,b)=>a+Number(b.points||0),0); }
 
   function renderLists(){
     const fl = $('#foodList'); fl.innerHTML = '';
     state.foods.forEach((it, idx)=>{
       const li = document.createElement('li');
-      li.innerHTML = \`<span>\${it.name}</span><strong>\${Number(it.points).toFixed(1).replace(/\.0$/,'')}</strong>\`;
+      li.innerHTML = `<span>${it.name}</span><strong>${Number(it.points).toFixed(1).replace(/\.0$/,'')}</strong>`;
       const actions = document.createElement('div');
       actions.className = 'item-actions';
       const del = document.createElement('button'); del.textContent='✕'; del.title='Remove';
@@ -95,7 +88,7 @@
     const el = $('#exerciseList'); el.innerHTML='';
     state.exercises.forEach((it, idx)=>{
       const li = document.createElement('li');
-      li.innerHTML = \`<span>\${it.name}</span><strong>+\${Number(it.points).toFixed(1).replace(/\.0$/,'')}</strong>\`;
+      li.innerHTML = `<span>${it.name}</span><strong>+${Number(it.points).toFixed(1).replace(/\.0$/,'')}</strong>`;
       const del = document.createElement('button'); del.textContent='✕';
       del.onclick = ()=>{ state.exercises.splice(idx,1); changed(); };
       li.appendChild(del);
@@ -106,11 +99,9 @@
     state.recipes.forEach((r, i)=>{
       const li = document.createElement('li');
       const per = (r.totalPoints / Math.max(1, r.servings)).toFixed(1).replace(/\.0$/,'');
-      li.innerHTML = \`<div><strong>\${r.name}</strong><div class="muted">\${r.servings} servings • \${per} pts/serving</div></div>\`;
+      li.innerHTML = `<div><strong>${r.name}</strong><div class="muted">${r.servings} servings • ${per} pts/serving</div></div>`;
       const useBtn = document.createElement('button'); useBtn.textContent='Use 1 serving';
-      useBtn.onclick = ()=>{
-        addFood(\`\${r.name} (1 serving)\`, Number(per));
-      };
+      useBtn.onclick = ()=>{ addFood(`${r.name} (1 serving)`, Number(per)); };
       const del = document.createElement('button'); del.textContent='Delete';
       del.onclick = ()=>{ state.recipes.splice(i,1); changed(); };
       const wrap = document.createElement('div');
@@ -120,24 +111,24 @@
     });
   }
 
-  function changed(){
-    save();
-    renderStats();
-    renderLists();
+  function changed(){ save(); renderStats(); renderLists(); }
+
+  function addFood(name, points){ state.foods.push({name, points:Number(points)}); changed(); }
+
+  // Tabs (click + keyboard support)
+  function activateTab(btn){
+    $$('.tab-btn').forEach(b=>{ b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
+    $$('.tab').forEach(t=>{ t.classList.remove('active'); t.setAttribute('aria-hidden','true'); });
+    btn.classList.add('active'); btn.setAttribute('aria-selected','true');
+    const target = '#'+btn.dataset.tab;
+    const pane = $(target);
+    if(pane){ pane.classList.add('active'); pane.setAttribute('aria-hidden','false'); }
   }
 
-  function addFood(name, points){
-    state.foods.push({name, points:Number(points)});
-    changed();
-  }
-
-  // Tab logic
   $$('.tab-btn').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      $$('.tab-btn').forEach(b=>b.classList.remove('active'));
-      $$('.tab').forEach(t=>t.classList.remove('active'));
-      btn.classList.add('active');
-      $('#'+btn.dataset.tab).classList.add('active');
+    btn.addEventListener('click', ()=>activateTab(btn));
+    btn.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); activateTab(btn); }
     });
   });
 
@@ -148,30 +139,21 @@
     const pts = parseFloat($('#foodPoints').value);
     if(!name || isNaN(pts)) return;
     addFood(name, pts);
-    $('#foodForm').reset();
-    $('#foodName').focus();
+    $('#foodForm').reset(); $('#foodName').focus();
   });
 
-  // Undo last item
   $('#undoLastBtn').addEventListener('click', ()=>{
-    if(state.foods.length){
-      state.foods.pop();
-      changed();
-    }
+    if(state.foods.length){ state.foods.pop(); changed(); }
   });
 
-  // End day & rollover
   $('#endDayBtn').addEventListener('click', ()=>{
     const remaining = Math.max(0, state.dailyAllowance + exerciseToday() - state.dailyUsed);
     const rollover = Math.min(4, remaining);
     state.rolloverBank += rollover;
-    // Advance date to today (in case user is backdating) and reset day
     state.date = new Date().toISOString().slice(0,10);
-    state.foods = [];
-    state.exercises = [];
-    state.dailyUsed = 0;
+    state.foods = []; state.exercises = []; state.dailyUsed = 0;
     changed();
-    alert(\`Rolled \${rollover} pts to your bank.\`);
+    alert(`Rolled ${rollover} pts to your bank.`);
   });
 
   // Exercise form
@@ -182,8 +164,7 @@
     if(!name || isNaN(pts)) return;
     state.exercises.push({name, points:Number(pts)});
     changed();
-    $('#exerciseForm').reset();
-    $('#exerciseName').focus();
+    $('#exerciseForm').reset(); $('#exerciseName').focus();
   });
 
   // Recipes
@@ -193,13 +174,10 @@
     if(!n || isNaN(p)) return;
     const wrap = document.createElement('div');
     wrap.className='row';
-    wrap.innerHTML = \`<span>\${n}</span><span>\${p.toFixed(1).replace(/\.0$/,'')} pts</span>\`;
-    wrap.dataset.name = n;
-    wrap.dataset.points = p;
+    wrap.innerHTML = `<span>${n}</span><span>${p.toFixed(1).replace(/\.0$/,'')} pts</span>`;
+    wrap.dataset.name = n; wrap.dataset.points = p;
     $('#recipeItems').appendChild(wrap);
-    $('#ingredientName').value='';
-    $('#ingredientPts').value='';
-    $('#ingredientName').focus();
+    $('#ingredientName').value=''; $('#ingredientPts').value=''; $('#ingredientName').focus();
   });
 
   $('#recipeForm').addEventListener('submit', (e)=>{
@@ -210,9 +188,7 @@
     let total = 0;
     $$('#recipeItems .row').forEach(r=> total += Number(r.dataset.points||0));
     state.recipes.push({name, servings, totalPoints: total});
-    // clear
-    $('#recipeForm').reset();
-    $('#recipeItems').innerHTML='';
+    $('#recipeForm').reset(); $('#recipeItems').innerHTML='';
     changed();
   });
 
@@ -227,17 +203,15 @@
       chest: $('#measureChest').value
     };
     state.measurements.push(entry);
-    changed();
-    renderMeasurements();
+    changed(); renderMeasurements();
     $('#measureForm').reset();
   });
 
   function renderMeasurements(){
     const tb = $('#measureTable tbody'); tb.innerHTML='';
-    // newest first
     state.measurements.slice().reverse().forEach(m=>{
       const tr = document.createElement('tr');
-      tr.innerHTML = \`<td>\${m.date||''}</td><td>\${m.weight||''}</td><td>\${m.waist||''}</td><td>\${m.hips||''}</td><td>\${m.chest||''}</td>\`;
+      tr.innerHTML = `<td>${m.date||''}</td><td>${m.weight||''}</td><td>${m.waist||''}</td><td>${m.hips||''}</td><td>${m.chest||''}</td>`;
       tb.appendChild(tr);
     });
   }
@@ -249,16 +223,14 @@
     const w = parseInt($('#setWeekly').value||'0',10);
     if(d>=0) state.dailyAllowance = d;
     if(w>=0) state.weeklyAllowance = w;
-    changed();
-    alert('Saved.');
+    changed(); alert('Saved.');
   });
 
   $('#resetDataBtn').addEventListener('click', ()=>{
     if(confirm('Reset ALL data? This cannot be undone.')){
       state = JSON.parse(JSON.stringify(initialState));
       state.date = new Date().toISOString().slice(0,10);
-      changed();
-      renderMeasurements();
+      changed(); renderMeasurements();
     }
   });
 
@@ -279,15 +251,13 @@
       try{
         const obj = JSON.parse(e.target.result);
         state = Object.assign({}, initialState, obj);
-        changed();
-        renderMeasurements();
+        changed(); renderMeasurements();
         alert('Import complete.');
       }catch(err){ alert('Invalid file.'); }
     };
     reader.readAsText(f);
   });
 
-  // Init
   function initInputs(){
     $('#setDaily').value = state.dailyAllowance;
     $('#setWeekly').value = state.weeklyAllowance;

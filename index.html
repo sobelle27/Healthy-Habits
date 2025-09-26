@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <title>PointsPlus Tracker</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v3" />
 </head>
 <body>
   <header>
@@ -12,17 +14,16 @@
     <div id="dateDisplay"></div>
   </header>
 
-  <nav class="tabs">
-    <button class="tab-btn active" data-tab="today">Today</button>
-    <button class="tab-btn" data-tab="exercise">Exercise</button>
-    <button class="tab-btn" data-tab="recipes">Recipes</button>
-    <button class="tab-btn" data-tab="measurements">Measurements</button>
-    <button class="tab-btn" data-tab="settings">Settings</button>
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button class="tab-btn active" data-tab="today" role="tab" aria-selected="true">Today</button>
+    <button class="tab-btn" data-tab="exercise" role="tab" aria-selected="false">Exercise</button>
+    <button class="tab-btn" data-tab="recipes" role="tab" aria-selected="false">Recipes</button>
+    <button class="tab-btn" data-tab="measurements" role="tab" aria-selected="false">Measurements</button>
+    <button class="tab-btn" data-tab="settings" role="tab" aria-selected="false">Settings</button>
   </nav>
 
   <main>
-    <!-- TODAY TAB -->
-    <section id="today" class="tab active">
+    <section id="today" class="tab active" role="tabpanel">
       <div class="cards">
         <div class="card">
           <h3>Daily</h3>
@@ -50,13 +51,12 @@
       </div>
 
       <div class="panel actions">
-        <button id="endDayBtn">End Day & Rollover</button>
-        <button id="undoLastBtn">Undo Last Item</button>
+        <button id="endDayBtn" type="button">End Day & Rollover</button>
+        <button id="undoLastBtn" type="button">Undo Last Item</button>
       </div>
     </section>
 
-    <!-- EXERCISE TAB -->
-    <section id="exercise" class="tab">
+    <section id="exercise" class="tab" role="tabpanel" aria-hidden="true">
       <div class="panel">
         <h3>Log Exercise</h3>
         <form id="exerciseForm">
@@ -69,8 +69,7 @@
       </div>
     </section>
 
-    <!-- RECIPES TAB -->
-    <section id="recipes" class="tab">
+    <section id="recipes" class="tab" role="tabpanel" aria-hidden="true">
       <div class="panel">
         <h3>New Recipe</h3>
         <form id="recipeForm">
@@ -94,8 +93,7 @@
       </div>
     </section>
 
-    <!-- MEASUREMENTS TAB -->
-    <section id="measurements" class="tab">
+    <section id="measurements" class="tab" role="tabpanel" aria-hidden="true">
       <div class="panel">
         <h3>Add Measurement</h3>
         <form id="measureForm">
@@ -116,8 +114,7 @@
       </div>
     </section>
 
-    <!-- SETTINGS TAB -->
-    <section id="settings" class="tab">
+    <section id="settings" class="tab" role="tabpanel" aria-hidden="true">
       <div class="panel">
         <h3>Allowances</h3>
         <form id="settingsForm">
@@ -133,10 +130,10 @@
 
       <div class="panel">
         <h3>Data</h3>
-        <button id="resetDataBtn">Reset All Data</button>
-        <button id="exportBtn">Export Backup</button>
+        <button id="resetDataBtn" type="button">Reset All Data</button>
+        <button id="exportBtn" type="button">Export Backup</button>
         <input type="file" id="importFile" accept=".json" />
-        <button id="importBtn">Import Backup</button>
+        <button id="importBtn" type="button">Import Backup</button>
       </div>
     </section>
   </main>
@@ -145,6 +142,6 @@
     <small>Local-only tool. Not affiliated with WW®. Data saves in your browser.</small>
   </footer>
 
-  <script src="script.js"></script>
+  <script src="script.js?v3"></script>
 </body>
 </html>

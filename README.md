@@ -1,30 +1,16 @@
-# PointsPlus Tracker (Light Theme)
+# PointsPlus Tracker (GitHub Pages Ready)
 
-Simple, no-frills PointsPlus-style tracker you can upload to GitHub Pages.
+- Mobile/tablet/desktop friendly
+- Tabs are cache-busted (`?v3`) so new versions load on your phone
+- Data stays in your browser (localStorage)
 
-## Files
-- `index.html` — app shell with tabs (Today, Exercise, Recipes, Measurements, Settings)
-- `style.css` — light theme styles
-- `script.js` — vanilla JS for logging food/exercise, recipes, measurements, settings, and rollover logic
-- `README.md` — this guide
+## Deploy
+1. Create a repo and upload all four files.
+2. Enable GitHub Pages (Settings → Pages → Deploy from branch → `main`, folder `root`).
+3. Visit the Pages URL. If you change files later, re-upload and refresh.
 
-## Features
-- **Today:** log foods, see Daily/Weekly remaining, **End Day & Rollover** (up to 4 pts).
-- **Exercise:** add exercise points (adds back to daily first, then weekly).
-- **Recipes:** build & save recipes, quick-use 1 serving.
-- **Measurements:** track weight and measurements over time.
-- **Settings:** set daily/weekly allowances, export/import backup, reset data.
-- **Saves locally** in your browser (no accounts).
-
-## How to Use
-1. Upload all four files to a new GitHub repo.
-2. Enable GitHub Pages (Settings → Pages → Deploy from branch → `main`/`root`).
-3. Visit your Pages URL to use the tracker.
-
-### Local
-Just double‑click `index.html`.
-
-## Notes
-- This is a personal tool; not affiliated with WW®.
-- Rollover: up to **4** unused daily points move to your **Rollover Bank** either automatically on a new day or when you click **End Day & Rollover**.
-- Data stays on your device (localStorage). Clearing site data resets it.
+## If tabs don't switch on a device
+- Hard refresh the page:
+  - iPhone/iPad (Safari): tap the URL bar → pull down to refresh, or Settings → Safari → Clear Website Data for your site.
+  - Android (Chrome): Menu → Reload or Settings → Privacy → Clear browsing data (cached images/files).
+  - Desktop: **Cmd/Ctrl + Shift + R**.

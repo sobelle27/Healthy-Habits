@@ -13,9 +13,9 @@
     weeklyUsed: 0,
     rolloverBank: 0,
     foods: [],
-    exercises: [], // {name, minutes?, reps?, weight?, points}
+    exercises: [],
     recipes: [],
-    measurements: [] // {month:'YYYY-MM', weight, neck, bust, waist, hips, buttocks, bicepsL, ...}
+    measurements: []
   };
 
   function load(){
@@ -201,7 +201,7 @@
   $('#measureForm').addEventListener('submit', (e)=>{
     e.preventDefault();
     const entry = {
-      month: $('#measureMonth').value, // YYYY-MM
+      month: $('#measureMonth').value,
       weight: $('#mWeight').value,
       neck: $('#mNeck').value,
       bust: $('#mBust').value,
@@ -217,19 +217,16 @@
       calfL: $('#mCalfL').value,
       calfR: $('#mCalfR').value
     };
-    // If an entry for this month exists, replace it (so you keep one per month)
     const idx = state.measurements.findIndex(m => m.month === entry.month);
     if(idx >= 0){ state.measurements[idx] = entry; } else { state.measurements.push(entry); }
     changed(); renderMeasurements();
     $('#measureForm').reset();
-    // default month to current
     const now = new Date();
     $('#measureMonth').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
   });
 
   function renderMeasurements(){
     const tb = $('#measureTable tbody'); tb.innerHTML='';
-    // sort by month descending
     const items = state.measurements.slice().sort((a,b)=> (a.month<b.month?1:-1));
     items.forEach(m=>{
       const tr = document.createElement('tr');
